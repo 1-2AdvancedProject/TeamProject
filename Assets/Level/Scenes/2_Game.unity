@@ -853,6 +853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   audioManager: {fileID: 849897820}
   playerController: {fileID: 156809791}
+  playerStats: {fileID: 11400000, guid: 85d0ceea785f7de46a030e9444c1e8b4, type: 2}
 --- !u!4 &1025645484
 Transform:
   m_ObjectHideFlags: 0
