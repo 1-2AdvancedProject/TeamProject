@@ -18,9 +18,6 @@ public class PoolInfo
 
 public class PoolManager : MonoBehaviour
 {
-    // 전역에서 접근 가능한 싱글톤 인스턴스
-    public static PoolManager Instance { get; private set; }
-
     // Inspector에서 여러 풀 정보를 등록
     public PoolInfo[] pools;
 

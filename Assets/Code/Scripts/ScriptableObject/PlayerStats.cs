@@ -21,7 +21,7 @@ public class PlayerStats : ScriptableObject
     // PlayerStats 초기화
     public void ResetStats()
     {
-        speed = 3f;
+        speed = 4f;
         coin = 0;
         maxHP = 800;
         currentHP = maxHP;
