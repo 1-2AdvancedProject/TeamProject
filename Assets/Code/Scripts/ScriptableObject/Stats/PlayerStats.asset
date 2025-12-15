@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c83f8bc146a95244bfb949ebc4ace7f, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  level: 0
-  maxHP: 800
-  speed: 3
+  speed: 5
   attack: 150
-  attackSpeed: 0
-  criticalChance: 0
-  criticalValue: 0
+  maxHP: 800
+  hookSpeed: 45
+  hookDistance: 5
+  hookSwingForce: 5

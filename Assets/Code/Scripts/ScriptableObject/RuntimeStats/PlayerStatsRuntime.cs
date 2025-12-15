@@ -1,0 +1,35 @@
+using UnityEngine;
+
+[System.Serializable]
+public class PlayerStatsRuntime
+{
+    [Header("플레이어 기본 스텟")]
+    [Header("이동속도")]
+    public float speed;
+    [Header("공격력")]
+    public float attack;
+    [Header("체력")]
+    public float maxHP;
+    public float currentHP;
+
+    [Header("플레이어 갈고리 스텟")]
+    [Header("갈고리 속도")]
+    public float hookSpeed;
+    [Header("갈고리 최대 거리")]
+    public float hookDistance;
+    [Header("갈고리 중 좌우 속도")]
+    public float hookSwingForce;
+
+    public void CopyFrom(PlayerStats baseStats)
+    {
+        speed = baseStats.speed;
+        attack = baseStats.attack;
+        maxHP = baseStats.maxHP;
+        currentHP = maxHP;
+
+        hookSpeed = baseStats.hookSpeed;
+        hookDistance = baseStats.hookDistance;
+        hookSwingForce = baseStats.hookSwingForce;
+
+    }
+}

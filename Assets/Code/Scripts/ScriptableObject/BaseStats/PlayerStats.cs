@@ -1,0 +1,22 @@
+﻿using UnityEngine;
+
+[CreateAssetMenu(fileName = "PlayerStats", menuName = "Custom/Player Stats")]
+public class PlayerStats : ScriptableObject
+{
+    [Header("플레이어 기본 스텟")]
+    [Header("이동속도")]
+    public float speed;
+    [Header("공격력")]
+    public float attack;
+    [Header("체력")]
+    public float maxHP;
+
+    [Header("플레이어 갈고리 스텟")]
+    [Header("갈고리 속도")]
+    public float hookSpeed;
+    [Header("갈고리 최대 거리")]
+    public float hookDistance;
+    [Header("갈고리 중 좌우 속도")]
+    public float hookSwingForce;
+}
+

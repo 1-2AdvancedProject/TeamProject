@@ -9,20 +9,31 @@ public class PlayerController : MonoBehaviour
     public Vector2 inputVec;
     Rigidbody2D rigid;
     SpriteRenderer sprite;
+    GrapplingHook grappling;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+        grappling = GetComponent<GrapplingHook>();
     }
 
     void FixedUpdate()
     {
         // x 이동
         float speed = GameManager.Instance.playerStatsRuntime.speed;
-        float x = inputVec.x * speed * Time.deltaTime;
-        transform.Translate(x, 0, 0);
+
+        if (grappling.isAttach) // 매달리기 중일 때
+        {
+            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce; // rigidbody add force
+            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+        }
+        else // 일반 이동 중일 때
+        {
+            float x = inputVec.x * speed * Time.deltaTime; // translate
+            transform.Translate(x, 0, 0);
+        }
 
         // 방향 플립
         if (inputVec.x > 0)
