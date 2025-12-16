@@ -25,6 +25,9 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 대화중일 경우 액션 X
+        if (dialogMng.isAction) return;
+
         // x 이동
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
