@@ -1,84 +1,84 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
-    public bool isGrounded;
-
-    public Vector2 inputVec;
-    Rigidbody2D rigid;
+    Rigidbody2D rb;
     SpriteRenderer sprite;
     GrapplingHook grappling;
 
-    PlayerInteraction interaction;  // »óÈ£ÀÛ¿ë
+    Vector2 input;
+
+    public float moveForce = 30f;
+    public float maxSpeed = 18f;
+    public float swingForce = 25f;
+    public float ropeAdjustSpeed = 6f;
 
     void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         grappling = GetComponent<GrapplingHook>();
-        interaction = GetComponent<PlayerInteraction>();
     }
-    void Start()
-    {
-        isGrounded = true;
-    }
+
     void FixedUpdate()
     {
-        if (interaction && interaction.GetIsAction()) return;
-
-        float speed = GameManager.Instance.playerStatsRuntime.speed;
-
-        if (grappling.isAttach) // ÈÅ ¸Å´Þ¸²
+        if (grappling.isAttach)
         {
-            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+            ApplyGrappleMovement();
         }
-        else // ÀÏ¹Ý ÀÌµ¿
+        else
         {
-            float x = inputVec.x * speed * Time.deltaTime; // translate
-            transform.Translate(x, 0, 0);
+            ApplyGroundMovement();
         }
 
-        // ¹æÇâ ÇÃ¸³
-        if (inputVec.x > 0)
-            sprite.flipX = false;
-        else if (inputVec.x < 0)
-            sprite.flipX = true;
+        ClampVelocity();
+        Flip();
     }
 
-
-    void OnJump()
+    void ApplyGroundMovement()
     {
-        if (!isGrounded) return;
-        GameManager.Instance.audioManager.PlayJumpSound(1f);
-        rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
-
-        isGrounded = false;
+        rb.AddForce(new Vector2(input.x * moveForce, 0f), ForceMode2D.Force);
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void ApplyGrappleMovement()
     {
-        if (collision.contacts[0].normal.y > 0.7f)
-        {
-            isGrounded = true;
-            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocityY);
-        }
+        // í›… â†’ í”Œë ˆì´ì–´ ë°©í–¥
+        Vector2 ropeDir = (rb.position - (Vector2)grappling.hook.position).normalized;
+
+        // ì ‘ì„  ë°©í–¥ (ìŠ¤ìœ™ í•µì‹¬)
+        Vector2 tangent = new Vector2(-ropeDir.y, ropeDir.x);
+
+        rb.AddForce(tangent * input.x * swingForce, ForceMode2D.Force);
+
     }
 
+    void ClampVelocity()
+    {
+        rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSpeed);
+    }
+
+    void Flip()
+    {
+        if (input.x > 0) sprite.flipX = false;
+        else if (input.x < 0) sprite.flipX = true;
+    }
 
     void OnMove(InputValue value)
     {
-        inputVec = value.Get<Vector2>();
+        input = value.Get<Vector2>();
     }
 
-    // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö
-    void IDamageable.TakeDamage(int attack)
+    void OnJump()
     {
-        // ÇÃ·¹ÀÌ¾î Ã¼·Â ÁÙ¾îµé±â
-        GameManager.Instance.playerStatsRuntime.currentHP -= attack;
-
-        Debug.Log("[ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö] ÇÃ·¹ÀÌ¾î ÇöÀç Ã¼·Â: " + GameManager.Instance.playerStatsRuntime.currentHP);
+        if (!grappling.isAttach)
+        {
+            rb.AddForce(Vector2.up * 12f, ForceMode2D.Impulse);
+        }
     }
 
+    public void TakeDamage(int attack)
+    {
+        GameManager.Instance.playerStatsRuntime.currentHP -= attack;
+    }
 }

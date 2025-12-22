@@ -16,7 +16,7 @@ MonoBehaviour:
   jumpForce: 9
   attack: 150
   maxHP: 800
-  hookSpeed: 100
-  hookDistance: 15
+  hookSpeed: 200
+  hookDistance: 12
   hookSwingForce: 70
   hookEnemyThrowForce: 50

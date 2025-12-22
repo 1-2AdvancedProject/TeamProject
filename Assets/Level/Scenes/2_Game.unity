@@ -569,8 +569,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8f45148cd5db346b7de84d8e4f0c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  isGrounded: 0
-  inputVec: {x: 0, y: 0}
+  moveForce: 30
+  maxSpeed: 18
+  swingForce: 25
+  ropeAdjustSpeed: 6
 --- !u!114 &156809792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,14 +648,12 @@ MonoBehaviour:
   isLineMax: 0
   isAttach: 0
   isEnemyAttach: 0
+  swingForce: 28
+  climbForce: 14
+  maxSwingSpeed: 22
   slowFactor: 0.1
-  slowLength: 0.5
-  enemyFollowOffset: {x: 1, y: 0, z: 0}
-  groundCheck: {fileID: 1089452493}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundRadius: 0.15
+  slowLength: 0.3
+  enemyFollowOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &156809795
 MonoBehaviour:
   m_ObjectHideFlags: 0

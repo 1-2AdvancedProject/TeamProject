@@ -1,7 +1,6 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,208 +14,239 @@ public class GrapplingHook : MonoBehaviour
     public bool isLineMax;
     public bool isAttach;
     public bool isEnemyAttach;
-    bool hasShakedOnAttach = false;
-    bool hasPlayedAttachSound = false;
-    bool isPlayedDraftSound = false;
-    bool hasPlayedShootSound = false;
 
-    // ½½·Î¿ì È¿°ú º¯¼ö
-    public float slowFactor;    // ½½·Î¿ì ºñÀ²
-    public float slowLength;    // ¿ø·¡ ¼Óµµ·Î º¹±ÍÇÏ´Â µ¥ °É¸®´Â ½Ã°£
-    Coroutine slowCoroutine;    // ½½·Î¿ì È¿°ú ÄÚ·çÆ¾
+    bool hasShakedOnAttach;
+    bool hasPlayedAttachSound;
+    bool isPlayedDraftSound;
+
+    [Header("Swing")]
+    public float swingForce = 28f;
+    public float climbForce = 14f;
+    public float maxSwingSpeed = 22f;
+
+    // ìŠ¬ë¡œìš°
+    public float slowFactor;
+    public float slowLength;
+    Coroutine slowCoroutine;
 
     public Vector3 enemyFollowOffset = Vector3.zero;
     private List<Transform> enemies = new List<Transform>();
+    private Transform attachedEnemy; // í˜„ì¬ ëŒê³  ìˆëŠ” ì 
+
     Rigidbody2D rb;
     SpriteRenderer sprite;
     DistanceJoint2D hookJoint;
-    bool isStopped = false;
 
-    [SerializeField] Transform groundCheck;
-    [SerializeField] LayerMask groundLayer;
-    [SerializeField] float groundRadius = 0.15f;
-
-    bool IsGrounded()
-    {
-        return Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
-    }
+    Vector2 inputVec;
 
     void Start()
     {
-        // ¶óÀÎÀ» ±×¸®´Â Æ÷Áö¼ÇÀ» µÎ°³·Î ¼³Á¤ÇÏ°í (PositionCount)
-        // ÇÑ Á¡Àº PlayerÀÇ Æ÷Áö¼Ç, ÇÑ Á¡Àº HookÀÇ Æ÷Áö¼ÇÀ¸·Î ¼³Á¤ (SetPosition)
-        line.positionCount = 2;
-        line.endWidth = line.startWidth = 0.05f;
-        line.SetPosition(0, transform.position);
-        line.SetPosition(1, hook.position);
-        line.useWorldSpace = true;
-        isAttach = false;
-        hook.gameObject.SetActive(false);
-
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         hookJoint = hook.GetComponent<DistanceJoint2D>();
+
+        hookJoint.enabled = false;
+        hookJoint.autoConfigureDistance = false;
+
+        line.positionCount = 2;
+        line.endWidth = line.startWidth = 0.05f;
+        line.useWorldSpace = true;
+
+        hook.gameObject.SetActive(false);
     }
+
     void Update()
     {
         line.SetPosition(0, transform.position);
         line.SetPosition(1, hook.position);
 
-        // °¥°í¸® or Àû¿¡ Ã³À½ ºÙ¾úÀ» ¶§
+        // ì²˜ìŒ ë¶™ì„ ë•Œ
         if ((isAttach || isEnemyAttach) && !hasPlayedAttachSound)
         {
             GameManager.Instance.audioManager.HookAttachSound(1f);
+            CancelSlow();
             hasPlayedAttachSound = true;
         }
 
+        // í›… ë°œì‚¬
         if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive && !isAttach && !isEnemyAttach)
         {
-            GameManager.Instance.cameraShake.ShakeForSeconds(0.1f); // Ä«¸Ş¶ó Èçµé±â
-            GameManager.Instance.audioManager.HookShootSound(0.7f); // °¥°í¸® ¹ß»ç È¿°úÀ½
-            hook.position = transform.position;
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            mouseWorldPos.z = 0f;
+            GameManager.Instance.audioManager.HookShootSound(0.7f);
 
-            mousedir = mouseWorldPos - transform.position;
+            hook.position = transform.position;
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            mouseWorld.z = 0f;
+
+            mousedir = (mouseWorld - transform.position).normalized;
             isHookActive = true;
             hook.gameObject.SetActive(true);
         }
 
-        // ÈÅÀÌ ¹ß»çµÈ »óÅÂÀÌ°í, ¾ÆÁ÷ ÃÖ´ë »ç°Å¸®¿¡ µµ´ŞÇÏÁö ¾Ê¾ÒÀ» ¶§
+        // í›… ì „ì§„
         if (isHookActive && !isLineMax && !isAttach && !isEnemyAttach)
         {
-            // ¸¶¿ì½º ¹æÇâÀ¸·Î ÈÅÀ» ÀüÁø½ÃÅ´
-            hook.Translate(mousedir.normalized * Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
-            // ÇÃ·¹ÀÌ¾î¿Í ÈÅ »çÀÌÀÇ °Å¸®°¡ ÃÖ´ë »ç°Å¸®º¸´Ù Ä¿Áö¸é
-            if (Vector2.Distance(transform.position, hook.position) > GameManager.Instance.playerStatsRuntime.hookDistance)
+            hook.Translate(mousedir * GameManager.Instance.playerStatsRuntime.hookSpeed * Time.deltaTime);
+
+            if (Vector2.Distance(transform.position, hook.position) >
+                GameManager.Instance.playerStatsRuntime.hookDistance)
             {
-                // ÃÖ´ë »ç°Å¸® µµ´Ş »óÅÂ·Î ÀüÈ¯
                 isLineMax = true;
-                hasPlayedShootSound = false;
             }
         }
 
-        // ÈÅÀÌ ÃÖ´ë »ç°Å¸®¿¡ µµ´ŞÇÑ ÀÌÈÄ
+        // í›… íšŒìˆ˜
         else if (isHookActive && isLineMax && !isAttach && !isEnemyAttach)
         {
-            // ÈÅÀ» ÇÃ·¹ÀÌ¾î À§Ä¡·Î ºÎµå·´°Ô µÇµ¹¸²
-            hook.position = Vector2.MoveTowards(hook.position, transform.position, Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
+            hook.position = Vector2.MoveTowards(
+                hook.position,
+                transform.position,
+                GameManager.Instance.playerStatsRuntime.hookSpeed * Time.deltaTime
+            );
 
-            // ÈÅÀÌ °ÅÀÇ ÇÃ·¹ÀÌ¾î À§Ä¡±îÁö µ¹¾Æ¿ÔÀ» °æ¿ì
             if (Vector2.Distance(transform.position, hook.position) < 0.1f)
             {
-                // ÈÅ »óÅÂ ÃÊ±âÈ­
-                isHookActive = false;
-                isLineMax = false;
-                hasPlayedShootSound = false;
-                // ÈÅ ¿ÀºêÁ§Æ® ºñÈ°¼ºÈ­
-                hook.gameObject.SetActive(false);
+                ResetHook();
             }
         }
 
-        else if (isAttach)
+        // ê·¸ë˜í”Œ í•´ì œ
+        if (isAttach && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            if (!hasShakedOnAttach)
+            DetachHook();
+        }
+
+        // ì  ë˜ì§€ê¸°
+        if (isEnemyAttach && attachedEnemy != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            Vector2 throwDir = (mouseWorld - (Vector2)transform.position).normalized;
+
+            ThrowEnemy(attachedEnemy, throwDir, GameManager.Instance.playerStatsRuntime.hookEnemyThrowForce);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (!isAttach) return;
+
+        inputVec = new Vector2(
+            (Keyboard.current.aKey.isPressed ? -1 : 0) + (Keyboard.current.dKey.isPressed ? 1 : 0),
+            0
+        );
+
+        Vector2 ropeDir = (rb.position - (Vector2)hook.position).normalized;
+        Vector2 tangent = new Vector2(-ropeDir.y, ropeDir.x);
+
+        rb.AddForce(tangent * inputVec.x * swingForce, ForceMode2D.Force);
+
+        // ìš°í´ë¦­ìœ¼ë¡œ ì¤„ì´ê¸°
+        if (Mouse.current.rightButton.isPressed)
+        {
+            if (hookJoint.enabled)
             {
-                GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
-                hasShakedOnAttach = true;
-            }
+                hookJoint.distance = Mathf.Max(1.2f, hookJoint.distance - 4f * Time.fixedDeltaTime);
 
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                isAttach = false;
-                isHookActive = false;
-                isLineMax = false;
-                hasShakedOnAttach = false;
-                hasPlayedAttachSound = false;
-
-                hook.GetComponent<Hooking>().joint2D.enabled = false;
-                hook.gameObject.SetActive(false);
-
-                if (slowCoroutine != null)
-                    StopCoroutine(slowCoroutine);
-
-                slowCoroutine = StartCoroutine(SlowRoutine());
-            }
-            if (Mouse.current.rightButton.isPressed) // ¿ìÅ¬¸¯ ²Ú ´­·¶À» ¶§
-            {
-                if (hookJoint != null && hookJoint.enabled)
+                if (!isPlayedDraftSound)
                 {
-                    hookJoint.distance = Mathf.Max(0.5f, hookJoint.distance - 0.1f); // ¶óÀÎ Á¡Á¡ ÁÙ¾îµé°Ô
-
-                    if (!isPlayedDraftSound)
-                    {
-                        GameManager.Instance.audioManager.HookDraftSound(1f);
-                        isPlayedDraftSound = true;
-                    }
+                    GameManager.Instance.audioManager.HookDraftSound(1f);
+                    isPlayedDraftSound = true;
                 }
             }
-            if (Mouse.current.rightButton.wasReleasedThisFrame)
+        }
+        else
+        {
+            if (isPlayedDraftSound)
             {
                 GameManager.Instance.audioManager.StopSFX();
                 isPlayedDraftSound = false;
             }
         }
 
-        else if (isEnemyAttach) // Àû ²ø°í¿À±â
-        {
-            if (Mouse.current.leftButton.wasPressedThisFrame && enemies.Count > 0)
-            {
-                Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-
-                Vector2 dir = mouseWorld - (Vector2)transform.position;
-
-                ThrowEnemy(enemies[0], dir, GameManager.Instance.playerStatsRuntime.hookEnemyThrowForce);
-            }
-        }
+        rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSwingSpeed);
     }
 
-    void LateUpdate()
+    void DetachHook()
     {
-        if (!isEnemyAttach) return;
+        isAttach = false;
+        isHookActive = false;
+        isLineMax = false;
 
-        SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            if (enemies[i] == null) continue;
+        hookJoint.enabled = false;
+        hook.gameObject.SetActive(false);
 
-            Vector3 offset = enemyFollowOffset;
-            offset.x = playerSprite.flipX ? -Mathf.Abs(enemyFollowOffset.x) : Mathf.Abs(enemyFollowOffset.x);
+        hasShakedOnAttach = false;
+        hasPlayedAttachSound = false;
 
-            enemies[i].localPosition = offset; // ºÎ¸ğ transform ±âÁØ localPosition
-        }
+        if (slowCoroutine != null)
+            StopCoroutine(slowCoroutine);
+
+        slowCoroutine = StartCoroutine(SlowRoutine());
     }
 
+    void ResetHook()
+    {
+        isHookActive = false;
+        isLineMax = false;
+        hook.gameObject.SetActive(false);
+    }
+
+    IEnumerator SlowRoutine()
+    {
+        sprite.color = Color.red;
+        Time.timeScale = slowFactor;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        while (Time.timeScale < 1f)
+        {
+            Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
+            Time.fixedDeltaTime = Time.timeScale * 0.02f;
+            yield return null;
+        }
+
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+        sprite.color = Color.white;
+    }
+
+    public void CancelSlow()
+    {
+        if (slowCoroutine != null)
+            StopCoroutine(slowCoroutine);
+
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+        sprite.color = Color.white;
+    }
+
+    // === Enemy ê´€ë ¨ ===
     public void AttachEnemy(Transform enemy)
     {
         if (enemies.Contains(enemy)) return;
 
         enemies.Add(enemy);
+        attachedEnemy = enemy;
 
+        // Collider ì¶©ëŒ ë¬´ì‹œ
         Collider2D enemyCol = enemy.GetComponent<Collider2D>();
         Collider2D playerCol = GetComponent<Collider2D>();
-
         if (enemyCol != null && playerCol != null)
             Physics2D.IgnoreCollision(enemyCol, playerCol, true);
 
-        // Rigidbody°¡ ÀÖÀ¸¸é KinematicÀ¸·Î
-        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
-        if (rb != null)
-            rb.bodyType = RigidbodyType2D.Kinematic;
+        // Rigidbodyë¥¼ Kinematicìœ¼ë¡œ
+        Rigidbody2D rbEnemy = enemy.GetComponent<Rigidbody2D>();
+        if (rbEnemy != null)
+            rbEnemy.bodyType = RigidbodyType2D.Kinematic;
 
-        // ÇÃ·¹ÀÌ¾î ÀÚ½ÄÀ¸·Î
+        // í”Œë ˆì´ì–´ ìì‹ìœ¼ë¡œ ë¶™ì´ê¸°
         enemy.SetParent(transform);
 
-        // ÇÃ·¹ÀÌ¾î SpriteRenderer °¡Á®¿À±â
+        // í”Œë ˆì´ì–´ SpriteRenderer ê¸°ì¤€ìœ¼ë¡œ x ì¢Œìš° ë§ì¶¤
         SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
-
-        // enemyFollowOffset ±âÁØÀ¸·Î x¸¦ ¿ŞÂÊ/¿À¸¥ÂÊ ¸ÂÃã
         Vector3 offset = enemyFollowOffset;
         offset.x = playerSprite.flipX ? -Mathf.Abs(enemyFollowOffset.x) : Mathf.Abs(enemyFollowOffset.x);
-
         enemy.localPosition = offset;
 
-        // ÈÅ & ÁÙ ¼û±â±â
+        // í›… ìˆ¨ê¸°ê¸°
         hook.gameObject.SetActive(false);
         line.enabled = false;
 
@@ -230,60 +260,30 @@ public class GrapplingHook : MonoBehaviour
     {
         if (!enemies.Contains(enemy)) return;
 
-        GameManager.Instance.audioManager.HookThrowEnemySound(1f); // Àû ´øÁö´Â È¿°úÀ½
-        enemies.Remove(enemy);
+        GameManager.Instance.audioManager.HookThrowEnemySound(1f);
 
-        // ºÎ¸ğ ÇØÁ¦
+        enemies.Remove(enemy);
+        attachedEnemy = null;
+
+        // ë¶€ëª¨ í•´ì œ
         enemy.SetParent(null);
 
-        Collider2D enemyCol = enemy.GetComponent<Collider2D>();
-        Collider2D playerCol = GetComponent<Collider2D>();
-
-        // Rigidbody Ã³¸®
-        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
-        if (rb != null)
+        // Rigidbody ì²˜ë¦¬
+        Rigidbody2D rbEnemy = enemy.GetComponent<Rigidbody2D>();
+        if (rbEnemy != null)
         {
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.linearVelocity = Vector2.zero;
-            rb.AddForce(throwDir.normalized * throwForce, ForceMode2D.Impulse);
+            rbEnemy.bodyType = RigidbodyType2D.Dynamic;
+            rbEnemy.linearVelocity = Vector2.zero;
+            rbEnemy.AddForce(throwDir.normalized * throwForce, ForceMode2D.Impulse);
         }
 
         if (enemies.Count == 0)
-        {
             isEnemyAttach = false;
-            hasPlayedAttachSound = false;
-        }
 
-
+        // í›… ì´ˆê¸°í™”
         line.enabled = true;
-
-        // ÈÅ »óÅÂ ÃÊ±âÈ­
-        isHookActive = false;
-        isLineMax = false;
-        hook.GetComponent<Hooking>().joint2D.enabled = false;
         hook.gameObject.SetActive(false);
+        if (hookJoint != null) hookJoint.enabled = false;
     }
 
-    // ½½·Î¿ì È¿°ú ÄÚ·çÆ¾
-    IEnumerator SlowRoutine()
-    {
-        // ½½·Î¿ì Àû¿ë
-        sprite.color = Color.red;
-        Time.timeScale = slowFactor;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-
-        // ¼­¼­È÷ ¿ø·¡ ¼Óµµ·Î º¹±Í
-        while (Time.timeScale < 1f)
-        {
-            Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
-            Time.timeScale = Mathf.Clamp(Time.timeScale, 0f, 1f);
-            Time.fixedDeltaTime = Time.timeScale * 0.02f;
-            yield return null;
-        }
-
-        // ¿ÀÂ÷ ¹æÁö¸¦ À§ÇØ ±âº»°ªÀ¸·Î º¹±¸
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = 0.02f;
-        sprite.color = Color.white;
-    }
 }
