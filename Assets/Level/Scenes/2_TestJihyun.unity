@@ -306,11 +306,6 @@ MonoBehaviour:
   slowFactor: 0.2
   slowLength: 1
   enemyFollowOffset: {x: 1, y: 0, z: 0}
-  groundCheck: {fileID: 1572683642}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  groundRadius: 0.15
 --- !u!114 &140406599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1545,10 +1540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4247eaf78f3c08f4a984a21f874487cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolManager
-  pools:
-  - prefabName: RainDrop
-    prefab: {fileID: 4977284132517006147, guid: bc34b8baf95b14b4bb5673338354a7c7, type: 3}
-    initialSize: 300
+  pools: []
 --- !u!1 &1197170917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1938,6 +1930,7 @@ MonoBehaviour:
     attack: 0
     maxHP: 0
     currentHP: 0
+  escKey: {fileID: 0}
 --- !u!1 &1572683641
 GameObject:
   m_ObjectHideFlags: 0
@@ -2135,7 +2128,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
-  testSound: {fileID: 0}
+  playerJump: {fileID: 0}
+  hookAttach: {fileID: 0}
+  hookDraft: {fileID: 0}
+  hookShoot: {fileID: 0}
+  hookThrowEnemy: {fileID: 0}
 --- !u!4 &1665319876
 Transform:
   m_ObjectHideFlags: 0

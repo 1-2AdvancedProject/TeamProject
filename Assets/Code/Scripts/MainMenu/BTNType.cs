@@ -10,10 +10,6 @@ public class BtnType : MonoBehaviour
     public AudioClip usedclip;
     Vector3 defaultScale;
 
-    public CanvasGroup mainGroup;
-    public CanvasGroup optionGroup;
-
-    bool isSound;
     bool isProcessing; // 버튼 연타 방지
 
     private void Start()
@@ -51,21 +47,29 @@ public class BtnType : MonoBehaviour
                 break;
 
             case BTNType.Option:
-                CanvasGroupOn(optionGroup);
-                CanvasGroupOff(mainGroup);
-                break;
+                // GameManager가 존재하고 escKey가 null이 아니면 openOption 실행
+                if (GameManager.Instance != null)
+                {
+                    // escKey가 null이면 씬에서 찾아서 연결
+                    if (GameManager.Instance.escKey == null)
+                    {
+                        GameManager.Instance.escKey = Object.FindFirstObjectByType<ESCKey>();
+                        if (GameManager.Instance.escKey == null)
+                        {
+                            Debug.LogWarning("씬에 ESCKey 오브젝트가 없습니다!");
+                            break;
+                        }
+                    }
 
-            case BTNType.Sound:
-                if (isSound)
-                    Debug.Log("사운드 OFF");
+                    GameManager.Instance.escKey.openOption();
+                }
                 else
-                    Debug.Log("사운드 ON");
-                isSound = !isSound;
+                {
+                    Debug.LogWarning("GameManager.Instance가 존재하지 않습니다!");
+                }
                 break;
 
             case BTNType.Back:
-                CanvasGroupOn(mainGroup);
-                CanvasGroupOff(optionGroup);
                 break;
 
             case BTNType.Quit:

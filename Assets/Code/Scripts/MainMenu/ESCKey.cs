@@ -10,27 +10,25 @@ public class ESCKey : MonoBehaviour
     {
         targetCanvas.SetActive(false); // 게임 시작 시 비활성화
         Time.timeScale = 1.0f; // 게임 시작 시 확실하게 1로 설정
-
-        openOption();
     }
 
     void Update()
     {
-        openOption();
+        if (Keyboard.current.escapeKey.wasPressedThisFrame) // ESC 키 입력 감지
+        {
+            openOption();
+        }
     }
 
 
     // 옵션창 띄우기 함수
-    void openOption()
+    public void openOption()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame) // ESC 키 입력 감지
-        {
-            isPaused = !isPaused; // 상태 반전
-            Debug.Log(isPaused);
-            targetCanvas.SetActive(isPaused); // 옵션창 표시 여부 변경
+        isPaused = !isPaused; // 상태 반전
+        Debug.Log(isPaused);
+        targetCanvas.SetActive(isPaused); // 옵션창 표시 여부 변경
 
-            // 시간 제어
-            Time.timeScale = isPaused ? 0f : 1f; // 옵션창 활성화 시 정지, 비활성화 시 원래대로
-        }
+        // 시간 제어
+        Time.timeScale = isPaused ? 0f : 1f; // 옵션창 활성화 시 정지, 비활성화 시 원래대로
     }
 }
