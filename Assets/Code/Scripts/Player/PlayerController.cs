@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	PlayerInteraction interaction;  // 상호작용
 
-
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -48,15 +47,11 @@ public class PlayerController : MonoBehaviour, IDamageable
             sprite.flipX = false;
         else if (inputVec.x < 0)
             sprite.flipX = true;
-    }
 
-	private void Update()
-	{
 		// 플레이어가 그래플링 훅 사용 중일 때
 		if (grappling.isAttach)
-			isGrounded = false;		// 바닥에 있지 X
+			isGrounded = false;     // 바닥에 있지 X
 	}
-
 
 	void OnJump()
 	{

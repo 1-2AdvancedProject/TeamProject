@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class Hooking : MonoBehaviour
 {
+    [Header("이하이면 보정")]
+    public float minDistanceLimit;
+    [Header("가까울 때 고정되는 거리")]
+    public float minClampDistance;
+
     GrapplingHook grappling;
     public DistanceJoint2D joint2D;
 
@@ -21,9 +26,26 @@ public class Hooking : MonoBehaviour
 
             // 플레이어가 갈고리를 건 위치가 Joint DIstance의 Distance
             float dist = Vector2.Distance(grappling.transform.position, transform.position);
-            joint2D.distance = dist - 0.3f;
+            joint2D.distance = dist;
 
-            grappling.isAttach = true;
+            if (GameManager.Instance.playerController.isGrounded == true) // 땅에 닿았을 때 줄이기
+            {
+                joint2D.distance -= joint2D.distance * 0.2f;
+            }
+
+            if (joint2D.distance >= 9)
+            {
+                joint2D.distance = 7;
+            }
+
+            if (!GameManager.Instance.playerController.isGrounded && joint2D.distance <= minDistanceLimit) // 짧을 때 늘리기
+            {
+                joint2D.distance = minClampDistance;
+            }
+
+            grappling.ApplyHookImpulse(transform.position); // 힘 주기
+
+			grappling.isAttach = true;
             grappling.isHookActive = false;
             grappling.isLineMax = false;
         }
