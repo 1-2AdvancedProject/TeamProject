@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Player SFX")]
     public AudioClip playerJump;
+    public AudioClip playerWalk;
 
     [Header("Hook SFX")]
     public AudioClip hookAttach;
@@ -82,6 +83,7 @@ public class AudioManager : MonoBehaviour
 
     // 플레이어
     public void PlayJumpSound(float volume = 1f) => PlaySFX(playerJump, volume);
+    public void PlayWalkSound(float volume = 1f) => PlaySFX(playerWalk, volume);
 
     // 갈고리
     public void HookAttachSound(float volume = 1f) => PlaySFX(hookAttach, volume);

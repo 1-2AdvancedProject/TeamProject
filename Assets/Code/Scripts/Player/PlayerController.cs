@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 {
     public bool isGrounded;
     public bool hasCollided = false;
+    bool wasAttach;
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -31,37 +32,45 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-        if (grappling.isAttach) // 훅 매달림
+        // 그래플 시작 순간
+        if (!wasAttach && grappling.isAttach)
         {
-			float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-			rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+            // 입력 방향으로 쌓인 속도만 제거
+            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 수평 가속도 제거, 수직 가속도 유지
+        }
 
-			// 최대 속도 제한
-			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+        if (grappling.isAttach)
+        {
+            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
+            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+
+            if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
             {
                 rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
             }
 
+            isGrounded = false;
         }
-        else // 일반 이동
+        else
         {
-            float x = inputVec.x * speed * Time.deltaTime; // translate
+            float x = inputVec.x * speed * Time.deltaTime;
             transform.Translate(x, 0, 0);
-            Debug.Log("Grounded : " + isGrounded);
-
         }
 
         // 방향 플립
         if (inputVec.x > 0)
+        {
             sprite.flipX = false;
+        }
         else if (inputVec.x < 0)
+        {
             sprite.flipX = true;
+        }
 
-		// 플레이어가 그래플링 훅 사용 중일 때
-		if (grappling.isAttach)
-			isGrounded = false;     // 바닥에 있지 X
-
+        // 상태 저장 (맨 마지막!)
+        wasAttach = grappling.isAttach;
     }
+
 
     void OnJump()
 	{
