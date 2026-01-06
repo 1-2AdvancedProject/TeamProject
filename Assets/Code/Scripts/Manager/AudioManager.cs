@@ -20,6 +20,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip hookShoot;
     public AudioClip hookThrowEnemy;
 
+    [Header("Dialog SFX")]
+    public AudioClip textTyping;
+
+
     const string BGM_KEY = "BGM_VOLUME";
     const string SFX_KEY = "SFX_VOLUME";
 
@@ -90,4 +94,7 @@ public class AudioManager : MonoBehaviour
     public void HookDraftSound(float volume = 1f) => PlaySFX(hookDraft, volume);
     public void HookShootSound(float volume = 1f) => PlaySFX(hookShoot, volume);
     public void HookThrowEnemySound(float volume = 1f) => PlaySFX(hookThrowEnemy, volume);
+
+    // 다이어로그
+    public void TextTypingSound(float volume = 1f) => PlaySFX(textTyping, volume);
 }
