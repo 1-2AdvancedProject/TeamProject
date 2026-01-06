@@ -1358,10 +1358,12 @@ MonoBehaviour:
   isLineMax: 0
   isAttach: 0
   isEnemyAttach: 0
+  isObjAttach: 0
   isSlowing: 0
   slowFactor: 0.5
   slowLength: 2
   enemyFollowOffset: {x: 1, y: 0, z: 0}
+  objFollowOffset: {x: 0, y: 0, z: 0}
   swingBoostController: {fileID: 0}
 --- !u!114 &156809795
 MonoBehaviour:
@@ -19210,7 +19212,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManager
   talkPanel: {fileID: 1449326991}
   talkText: {fileID: 499749626}
-  dialogText: "AD\uB97C \uB20C\uB7EC \uC774\uB3D9\nSPACE\uB97C \uB20C\uB7EC \uC810\uD504"
+  dialogText: "AD\uB97C| \uB20C\uB7EC| \uC774\uB3D9\nSPACE\uB97C||| \uB20C\uB7EC||||||||
+    \uC810\uD504"
   typingSpeed: 0.05
   isAction: 0
 --- !u!212 &678147089
@@ -20685,6 +20688,7 @@ MonoBehaviour:
   hookDraft: {fileID: 8300000, guid: 0056bba062b850442a3ea463858dbeeb, type: 3}
   hookShoot: {fileID: 8300000, guid: 88699f601e27fe244b2c0b0b4240c5ac, type: 3}
   hookThrowEnemy: {fileID: 8300000, guid: 5490e89180fec6740b7a604da72dc853, type: 3}
+  textTyping: {fileID: 8300000, guid: 4eaaca373f0ceec44970de3f11833ae0, type: 3}
 --- !u!1 &877489479
 GameObject:
   m_ObjectHideFlags: 0
@@ -21595,7 +21599,7 @@ MonoBehaviour:
     hookSpeed: 0
     hookDistance: 0
     hookSwingForce: 0
-    hookEnemyThrowForce: 0
+    hookThrowForce: 0
     maxSwingSpeed: 0
   enemyStatsRuntime:
     attack: 0
@@ -43099,6 +43103,167 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1358163441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1358163444}
+  - component: {fileID: 1358163443}
+  - component: {fileID: 1358163442}
+  - component: {fileID: 1358163445}
+  m_Layer: 0
+  m_Name: Stone3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!60 &1358163442
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358163441}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 2}
+    newSize: {x: 2, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.43217984, y: -0.099327475}
+      - {x: -0.622318, y: -0.2866847}
+      - {x: -0.8044979, y: -0.97389877}
+      - {x: 0.7367306, y: -0.98978025}
+      - {x: 0.72603804, y: -0.89559525}
+      - {x: 0.57241184, y: -0.64584696}
+      - {x: 0.40821302, y: -0.61281574}
+      - {x: 0.28447092, y: -0.2907616}
+      - {x: 0.095717266, y: -0.099327415}
+  m_UseDelaunayMesh: 0
+--- !u!212 &1358163443
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358163441}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 3
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -1019068024, guid: 5fe5454ec8605de43809133b020d1b69, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &1358163444
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358163441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.41, y: 1.82, z: 0}
+  m_LocalScale: {x: 1.8718, y: 1.9076, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1358163445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358163441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e83b38cd1dffa674db39152050f08036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LayerSetting
 --- !u!1 &1368826548
 GameObject:
   m_ObjectHideFlags: 0
@@ -51773,3 +51938,4 @@ SceneRoots:
   - {fileID: 149336301}
   - {fileID: 1562949482}
   - {fileID: 1965681171}
+  - {fileID: 1358163444}
