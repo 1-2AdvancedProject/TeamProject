@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (!wasAttach && grappling.isAttach)
         {
             // 입력 방향으로 쌓인 속도만 제거
-            rigid.linearVelocity = new Vector2(0f, 0f); // 수직, 수평 가속도 제거
+            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 수직, 수평 가속도 제거
         }
 
         if (grappling.isAttach)
